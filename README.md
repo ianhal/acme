@@ -2,10 +2,21 @@
 
 Fun and full of gusto :)
 
+## How to compile
+
+`sbt compile`
+
+## How to test
+
+`sbt test`
+
 ## How to run
 
 `sbt run`
 
+## Needed Optimization/Improvement Notes
+* sds
+* 
 ## Development Notes
 * create Producer
   - creates main units, mops, brooms
