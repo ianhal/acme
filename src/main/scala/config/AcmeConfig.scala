@@ -1,7 +1,7 @@
 package com.acme
 package config
 
-import config.AcmeConfig.{ConsumerConfig, FactoryConfig, ProducerConfig}
+import config.AcmeConfig.{ConsumerConfig, FactoryConfig, SupplierConfig}
 
 import cats.effect.IO
 import com.typesafe.config.{Config, ConfigFactory}
@@ -15,7 +15,7 @@ trait SubConfig[A]{
 case class AcmeConfig(
                        factoryConfig: FactoryConfig,
                        consumerConfig: ConsumerConfig,
-                       producerConfig: ProducerConfig
+                       supplierConfig: SupplierConfig
                      )
 object AcmeConfig{
   import utils.Rich._
@@ -29,7 +29,7 @@ object AcmeConfig{
     AcmeConfig(
       factoryConfig = FactoryConfig.fromConfig(config.getConfig("factory")),
       consumerConfig = ConsumerConfig.fromConfig(config.getConfig("consumer")),
-      producerConfig = ProducerConfig.fromConfig(config.getConfig("producer"))
+      supplierConfig = SupplierConfig.fromConfig(config.getConfig("producer"))
     )
   }
 
@@ -54,12 +54,12 @@ object AcmeConfig{
     }
   }
 
-  case class ProducerConfig(buildTime: FiniteDuration)
+  case class SupplierConfig(buildTime: FiniteDuration)
 
-  object ProducerConfig extends SubConfig[ProducerConfig]{
+  object SupplierConfig extends SubConfig[SupplierConfig]{
 
-    override def fromConfig(config: Config): ProducerConfig = {
-      ProducerConfig(
+    override def fromConfig(config: Config): SupplierConfig = {
+      SupplierConfig(
         buildTime = config.getInt("buildTime").toFiniteDuration,
       )
     }

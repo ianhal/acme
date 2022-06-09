@@ -1,7 +1,7 @@
 package com.acme
 package config
 
-import config.AcmeConfig.{ConsumerConfig, FactoryConfig}
+import config.AcmeConfig.{ConsumerConfig, FactoryConfig, SupplierConfig}
 import config.AcmeConfigTest._
 
 import com.typesafe.config.{Config, ConfigFactory}
@@ -30,8 +30,8 @@ class AcmeConfigTest extends AnyFunSuite {
     assertFiniteDurationFailure(consumerConfig(assemblyTime = "BOOM"))(ConsumerConfig)
   }
 
-  test("invalid ProducerConfig.buildTime fails conversion to FiniteDuration"){
-    assertFiniteDurationFailure(producerConfig(buildTime = "BOOM"))(ConsumerConfig)
+  test("invalid SupplierConfig.buildTime fails conversion to FiniteDuration"){
+    assertFiniteDurationFailure(supplierConfig(buildTime = "BOOM"))(SupplierConfig)
   }
 
   def assertFiniteDurationFailure[A](config: Config)(implicit C: SubConfig[A]): Unit = {
@@ -55,7 +55,7 @@ object AcmeConfigTest {
       "assemblyTime" -> assemblyTime
     ).asJava)
 
-  def producerConfig(buildTime: String): Config = ConfigFactory.parseMap(
+  def supplierConfig(buildTime: String): Config = ConfigFactory.parseMap(
     Map(
       "buildTime" -> buildTime
     ).asJava)
