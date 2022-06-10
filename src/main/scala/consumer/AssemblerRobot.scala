@@ -31,7 +31,7 @@ abstract class AssemblerRobot(conveyorSemaphore: Semaphore[IO], dequeue: Peekabl
     maybePeeked <- dequeue.tryPeek
     preInventory <- currentInventoryRef.get
     _ <- Monad[IO].whenA(maybePeeked.nonEmpty && needsComponent(maybePeeked.get, preInventory)){
-      debugIO("before dequeue take") *> dequeue.take.flatMap(d => currentInventoryRef.update(l => l :+ d)) *> infoIO(s"${getClass.getSimpleName} took ${maybePeeked.get} from conveyor belt.")
+      dequeue.take.flatMap(d => currentInventoryRef.update(l => l :+ d)) *> infoIO(s"${getClass.getSimpleName} took from conveyor belt: ${maybePeeked.get}")
     }
     _ <- debugIO("releasing semaphore") *> conveyorSemaphore.release *> debugIO("released semaphore")
     postInventory <- currentInventoryRef.get

@@ -14,7 +14,7 @@ case class Supplier(supplierConfig: SupplierConfig) extends LogSupportIO {
 
   def supplyIO: IO[Component] = IO {
     val component = AVAILABLE_COMPONENTS.maybeRandom.get
-    info(s"Supplier added to conveyor: $component")
+    info(s"Supplier added to conveyor belt: $component")
     component
   }.notFasterThan(supplierConfig.buildTime)
 }

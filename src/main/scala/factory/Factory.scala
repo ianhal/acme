@@ -45,7 +45,7 @@ case class Factory(conveyorSemaphore: Semaphore[IO],
     lastTake <- lastTakeRef.get
     _ <- Monad[IO].whenA((now.getTimeInMillis - lastTake.getTimeInMillis) > factoryConfig.inactivityTimeout.toMillis){
       for {
-        _ <- dequeue.take.flatMap(throwAway => infoIO(s"Supplier threw stale $throwAway away!"))
+        _ <- dequeue.take.flatMap(throwAway => infoIO(s"Supplier disposed of a stale component: $throwAway!"))
       } yield ()
     }
   } yield ()
