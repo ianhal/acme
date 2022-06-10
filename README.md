@@ -16,7 +16,7 @@ Fun and full of gusto :)
 * **Bottleneck**: queue could potentially contain many unneeded components and workers have to wait until supplier removes them 1 by 1 every 10 seconds.
 * **Optimization Idea 1**: set inactivityTimeout = sum(robot assemblyTime) + 1 s
 * **Optimization Idea 2**: development of an algorithm that efficiently measures the wait time based upon components in queue and weight supplier creation thereon
-* **Optimization Idea 3**: product-specific or component-specific pipelines/queues/topics
+* **Optimization Idea 3**: product-specific or component-specific pipelines/queues/topics with multiple suppliers
 ### Requirement Notes
 * create Producer
   - creates main units, mops, brooms
