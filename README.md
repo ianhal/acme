@@ -2,22 +2,22 @@
 
 Fun and full of gusto :)
 
-## How to compile
+## Running with SBT
 
-`sbt compile`
+* compile:`sbt compile`
+* test: `sbt test`
+* run: `sbt run`
 
-## How to test
+## Running with Docker
+* build image: `sbt docker:publishLocal`
+* start container: `docker-compose acme`
 
-`sbt test`
-
-## How to run
-
-`sbt run`
-
-## Needed Optimization/Improvement Notes
-* sds
-* 
-## Development Notes
+## Notes
+* **Bottleneck**: queue could potentially contain many unneeded components and workers have to wait until supplier removes them 1 by 1 every 10 seconds.
+* **Optimization Idea 1**: set inactivityTimeout = sum(robot assemblyTime) + 1 s
+* **Optimization Idea 2**: development of an algorithm that efficiently measures the wait time based upon components in queue and weight supplier creation thereon
+* **Optimization Idea 3**: product-specific or component-specific pipelines/queues/topics
+### Requirement Notes
 * create Producer
   - creates main units, mops, brooms
   - one component every second (completely random)
@@ -28,4 +28,4 @@ Fun and full of gusto :)
   - 1 producer
   - 2 consumers
   - 10 items Max limit (wait for room)
-  - if 10 items and after 10 seconds no movement, delete last in queue
+  - after 10 seconds no movement, delete last in queue
