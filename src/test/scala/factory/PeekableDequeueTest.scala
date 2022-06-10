@@ -3,11 +3,10 @@ package factory
 
 import config.AcmeConfig
 
-import cats.effect.{IO, Ref}
 import cats.effect.unsafe.implicits.global
+import cats.effect.{IO, Ref}
 import com.typesafe.config.ConfigFactory
 import org.scalatest.funsuite.AnyFunSuite
-import org.scalatest.time.SpanSugar.convertIntToGrainOfTime
 
 import java.util.Calendar
 

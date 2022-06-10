@@ -18,13 +18,14 @@ object Main extends IOApp with LogSupportIO {
 
   override def run(args: List[String]): IO[ExitCode] = for {
     config <- AcmeConfig.createIO
-    lastTimeRef <- Ref[IO].of(Calendar.getInstance())
-    semaphore <- Semaphore[IO](1)
-    dequeue <- PeekableDequeue[IO].create[Component](config.factoryConfig, lastTimeRef)
-    supplier <- Supplier.create(config.supplierConfig)
-    wetRobotBuilder <- AssemblerRobot.createWetRobotIO(dequeue, semaphore, config.consumerConfig)
-    dryRobotBuilder <- AssemblerRobot.createDryRobotIO(dequeue, semaphore, config.consumerConfig)
-    _ <- Factory.startIO(semaphore, dequeue, lastTimeRef)(supplier, Seq(wetRobotBuilder, dryRobotBuilder), config.factoryConfig)
+    lastTakeRef <- Ref[IO].of(Calendar.getInstance())
+    conveyorSemaphore <- Semaphore[IO](1)
+    dequeue <- PeekableDequeue[IO].create[Component](config.factoryConfig, lastTakeRef)
+    supplier <- Supplier.createIO(config.supplierConfig)
+    wetRobotBuilder <- AssemblerRobot.createWetRobotIO(dequeue, conveyorSemaphore, config.consumerConfig)
+    dryRobotBuilder <- AssemblerRobot.createDryRobotIO(dequeue, conveyorSemaphore, config.consumerConfig)
+    factory <- Factory.factoryIO(conveyorSemaphore, dequeue, lastTakeRef, supplier, Seq(wetRobotBuilder, dryRobotBuilder), config.factoryConfig)
+    _ <- factory.startIO
     _ <- IO.unit.loopForever
   } yield ExitCode.Success
 }

@@ -13,7 +13,7 @@ class SupplierTest extends AnyFunSuite{
 
   test("Supplier creates a component successfully"){
     val component = (for{
-      supplier <- Supplier.create(config)
+      supplier <- Supplier.createIO(config)
       component <- supplier.supplyIO
     } yield component).unsafeRunSync
 
