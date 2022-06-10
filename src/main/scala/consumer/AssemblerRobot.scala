@@ -27,17 +27,13 @@ abstract class AssemblerRobot(conveyorSemaphore: Semaphore[IO], dequeue: Peekabl
   } yield ()
 
   def fetchAndAttemptBuildIO(currentInventoryRef: Ref[IO, List[Component]], buildCountRef: Ref[IO, Int]): IO[Unit] = for {
-    _ <- debugIO("acquiring") *> conveyorSemaphore.acquire *> debugIO("acquired")
-    _ <- debugIO("before peak")
+    _ <- debugIO("acquiring semaphore") *> conveyorSemaphore.acquire *> debugIO("acquired semaphore")
     maybePeeked <- dequeue.tryPeek
-    _ <- debugIO("after peak")
     preInventory <- currentInventoryRef.get
-    _ <- debugIO("before needsComponent")
     _ <- Monad[IO].whenA(maybePeeked.nonEmpty && needsComponent(maybePeeked.get, preInventory)){
       debugIO("before dequeue take") *> dequeue.take.flatMap(d => currentInventoryRef.update(l => l :+ d)) *> infoIO(s"${getClass.getSimpleName} took ${maybePeeked.get} from conveyor belt.")
     }
-    _ <- debugIO("after needsComponent")
-    _ <- debugIO("releasing") *> conveyorSemaphore.release *> debugIO("released")
+    _ <- debugIO("releasing semaphore") *> conveyorSemaphore.release *> debugIO("released semaphore")
     postInventory <- currentInventoryRef.get
     _ <- debugIO(s"${getClass.getSimpleName} Inventory: $postInventory")
     _ <- Monad[IO].whenA(hasAllPrerequisites(postInventory)) {

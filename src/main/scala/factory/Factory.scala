@@ -33,14 +33,14 @@ case class Factory(conveyorSemaphore: Semaphore[IO],
   } yield ()
 
   def supplierAddToQueue: IO[Unit] = for {
-    _ <- debugIO("acquiring") *> conveyorSemaphore.acquire *> debugIO("acquired")
+    _ <- debugIO("acquiring semaphore") *> conveyorSemaphore.acquire *> debugIO("acquired semaphore")
     component <- supplier.supplyIO
     _ <- dequeue.put(component)
-    _ <- debugIO("releasing") *> conveyorSemaphore.release *> debugIO("released")
+    _ <- debugIO("releasing semaphore") *> conveyorSemaphore.release *> debugIO("released semaphore")
   } yield ()
 
   def checkForStaleComponent(dequeue: PeekableDequeue[IO, Component]): IO[Unit] = for {
-    _ <- debugIO("check stale")
+    _ <- debugIO("checking for a stale component")
     now <- IO(Calendar.getInstance())
     lastTake <- lastTakeRef.get
     _ <- Monad[IO].whenA((now.getTimeInMillis - lastTake.getTimeInMillis) > factoryConfig.inactivityTimeout.toMillis){
