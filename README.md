@@ -13,6 +13,10 @@ Fun and full of gusto :)
 * start container: `docker-compose acme`
 
 ## Notes
+* **Design Decision**: Build a custom Dequeue to be able to peek at front of pipeline
+* **Design Decision**: Use cats effect IO to control sequencing and order of execution of side effects
+* **Design Decision**: Use a Semaphore to control functional access to critical sections (e.g. accessing/modifying queue)
+* **Design Decision**: Use logback as efficient and easy formatted (info or debug) logging
 * **Bottleneck**: queue could potentially contain many unneeded components and workers have to wait until supplier removes them 1 by 1 every 10 seconds.
 * **Optimization Idea 1**: set inactivityTimeout = sum(robot assemblyTime) + 1 s
 * **Optimization Idea 2**: development of an algorithm that efficiently measures the wait time based upon components in queue and weight supplier creation thereon
