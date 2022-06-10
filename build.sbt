@@ -3,15 +3,39 @@ ThisBuild / version := "0.1.0-SNAPSHOT"
 
 ThisBuild / scalaVersion := "2.13.8"
 
+lazy val commonDockerSetting = Seq(
+  dockerBaseImage := "openjdk:11-jre",
+  dockerExposedPorts += 8080,
+  dockerAliases := {
+    val v = version.value
+
+    val isSnapshot: Boolean = v.contains("SNAPSHOT")
+    val maybeGitHash: Option[String] = git.gitHeadCommit.value
+
+    (isSnapshot, maybeGitHash) match {
+      case (false, _) => dockerAliases.value
+      case (true, None) => Seq(dockerAlias.value.withTag(Some("dev")))
+      case (true, Some(gitHash)) =>
+        Seq(
+          dockerAlias.value.withTag(Some(v.replaceAll("SNAPSHOT", gitHash.take(8)))),
+          dockerAlias.value,
+          dockerAlias.value.withTag(Some("dev"))
+        )
+    }
+  },
+  dockerUpdateLatest := !version.value.contains("SNAPSHOT"),
+  Docker / packageName := packageName.value.split("-").last
+)
+
 lazy val root = (project in file("."))
   .settings(
     name := "acme",
-    idePackagePrefix := Some("com.acme")
-  )  .settings(
+    idePackagePrefix := Some("com.acme"))
+  .settings(
   Compile / mainClass := Some("com.acme.Main"),
   Compile / discoveredMainClasses := Seq(),
   organization := "Acme",
-  name := "Acme Factory",
+  name := "AcmeFactory",
   version := "0.0.1-SNAPSHOT",
   scalaVersion := "2.13.8",
   libraryDependencies ++= Seq(
@@ -24,6 +48,9 @@ lazy val root = (project in file("."))
     "org.typelevel" %% "cats-effect" % "3.3.11",
 
     "org.scalatest" %% "scalatest" % "3.2.12" % "test",
-  )
-)
+  ))
+  .settings(commonDockerSetting)
+  .enablePlugins(JavaAppPackaging, UniversalPlugin, DockerPlugin)
+
+
 
