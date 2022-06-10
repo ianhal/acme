@@ -6,6 +6,7 @@ import config.AcmeConfig.{ConsumerConfig, FactoryConfig, SupplierConfig}
 import cats.effect.IO
 import com.typesafe.config.{Config, ConfigFactory}
 
+import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.FiniteDuration
 
 trait SubConfig[A]{
@@ -44,12 +45,13 @@ object AcmeConfig{
     }
   }
 
-  case class ConsumerConfig(assemblyTime: FiniteDuration)
+  case class ConsumerConfig(assemblyTime: FiniteDuration, retrievalTimeMS: FiniteDuration)
   object ConsumerConfig extends SubConfig[ConsumerConfig]{
 
     override def fromConfig(config: Config): ConsumerConfig = {
       ConsumerConfig(
         assemblyTime = config.getInt("assemblyTime").toFiniteDuration,
+        retrievalTimeMS = config.getInt("retrievalTimeMS").toFiniteDuration(TimeUnit.MILLISECONDS)
       )
     }
   }
@@ -66,6 +68,3 @@ object AcmeConfig{
   }
 
 }
-
-
-
