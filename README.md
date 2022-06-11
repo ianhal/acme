@@ -21,6 +21,8 @@ Fun and full of gusto :)
 * **Optimization Idea 1**: set inactivityTimeout = sum(robot assemblyTime) + 1 s
 * **Optimization Idea 2**: development of an algorithm that efficiently measures the wait time based upon components in queue and weight supplier creation thereon
 * **Optimization Idea 3**: product-specific or component-specific pipelines/queues/topics with multiple suppliers
+* **Optimization Idea 4**: peek in worker inventory and remove all from conveyor belt until at least 1 needed component
+* **Optimization Idea 5**: instead of disposing components, add to bounded storage queues with auto-scaling of assemblyRobots depending on amounts
 ### Requirement Notes
 * create Producer
   - creates main units, mops, brooms
