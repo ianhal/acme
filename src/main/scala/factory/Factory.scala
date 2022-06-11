@@ -7,11 +7,9 @@ import domain.Component
 import producer.Supplier
 import utils.LogSupportIO
 
-import cats.Monad
+import cats.effect.IO
 import cats.effect.std.Semaphore
-import cats.effect.{IO, Ref}
 
-import java.util.Calendar
 import scala.concurrent.duration.DurationInt
 
 case class Factory(conveyorSemaphore: Semaphore[IO],
