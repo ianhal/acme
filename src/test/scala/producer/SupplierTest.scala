@@ -3,9 +3,12 @@ package producer
 
 import config.AcmeConfig
 
+import cats.effect.{IO, Ref}
 import cats.effect.unsafe.implicits.global
 import com.typesafe.config.ConfigFactory
 import org.scalatest.funsuite.AnyFunSuite
+
+import java.util.Calendar
 
 class SupplierTest extends AnyFunSuite{
 
@@ -13,8 +16,9 @@ class SupplierTest extends AnyFunSuite{
 
   test("Supplier creates a component successfully"){
     val component = (for{
-      supplier <- Supplier.createIO(config)
-      component <- supplier.supplyIO
+      lastTakeRef <- Ref[IO].of(Calendar.getInstance())
+      supplier <- Supplier.createIO(lastTakeRef, config)
+      component <- supplier.supplyComponentIO
     } yield component).unsafeRunSync
 
     assert(Supplier.AVAILABLE_COMPONENTS.contains(component), "Supplier should be able to create an available component")

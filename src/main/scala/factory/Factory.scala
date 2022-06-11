@@ -16,7 +16,7 @@ import scala.concurrent.duration.DurationInt
 
 case class Factory(conveyorSemaphore: Semaphore[IO],
                    dequeue: PeekableDequeue[IO, Component],
-                   lastTakeRef: Ref[IO, Calendar], supplier: Supplier,
+                   supplier: Supplier,
                    consumers: Seq[AssemblerRobot],
                    factoryConfig: FactoryConfig
                   ) extends LogSupportIO {
@@ -29,35 +29,22 @@ case class Factory(conveyorSemaphore: Semaphore[IO],
     _ <- infoIO("Starting Factory")
     _ <- supplierAddToQueue.loopForever.start.map(_.cancel)
     _ <- consumers.map(_.startIO()).parSequence
-    - <- checkForStaleComponent(dequeue).notFasterThan(2.seconds).loopForever.start.map(_.cancel)
+    - <- supplier.checkForStaleComponentIO(dequeue).notFasterThan(2.seconds).loopForever.start.map(_.cancel)
   } yield ()
 
   def supplierAddToQueue: IO[Unit] = for {
     _ <- debugIO("acquiring semaphore") *> conveyorSemaphore.acquire *> debugIO("acquired semaphore")
-    component <- supplier.supplyIO
+    component <- supplier.supplyComponentIO
     _ <- dequeue.put(component)
     _ <- debugIO("releasing semaphore") *> conveyorSemaphore.release *> debugIO("released semaphore")
   } yield ()
-
-  def checkForStaleComponent(dequeue: PeekableDequeue[IO, Component]): IO[Unit] = for {
-    _ <- debugIO("checking for a stale component")
-    now <- IO(Calendar.getInstance())
-    lastTake <- lastTakeRef.get
-    _ <- Monad[IO].whenA((now.getTimeInMillis - lastTake.getTimeInMillis) > factoryConfig.inactivityTimeout.toMillis){
-      for {
-        _ <- dequeue.take.flatMap(throwAway => infoIO(s"Supplier disposed of a stale component: $throwAway!"))
-      } yield ()
-    }
-  } yield ()
-
 
 }
 object Factory{
   def factoryIO(conveyorSemaphore: Semaphore[IO],
                 queue: PeekableDequeue[IO, Component],
-                lastTakeRef: Ref[IO, Calendar],
                 producer: Supplier,
                 consumers: Seq[AssemblerRobot],
                 factoryConfig: FactoryConfig
-             ): IO[Factory] = IO(Factory(conveyorSemaphore, queue, lastTakeRef, producer, consumers, factoryConfig))
+             ): IO[Factory] = IO(Factory(conveyorSemaphore, queue, producer, consumers, factoryConfig))
 }

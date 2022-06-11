@@ -7,6 +7,7 @@ import cats.effect.unsafe.implicits.global
 import cats.effect.{IO, Ref}
 import com.typesafe.config.ConfigFactory
 import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.time.SpanSugar.convertIntToGrainOfTime
 
 import java.util.Calendar
 
@@ -50,6 +51,7 @@ class PeekableDequeueTest extends AnyFunSuite{
       _ <- queue.put(1)
       _ <- queue.take
       firstTakeTime <- lastTimeRef.get
+      _ <- IO.sleep(1.second)
       _ <- queue.take
       secondTakeTime <- lastTimeRef.get
 

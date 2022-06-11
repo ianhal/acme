@@ -22,8 +22,8 @@ class AcmeConfigTest extends AnyFunSuite {
     FactoryConfig.fromConfig(config)
   }
 
-  test("invalid FactoryConfig.inactivityTimeout fails conversion to FiniteDuration"){
-    assertFiniteDurationFailure(factoryConfig(inactivityTimeout = "BOOM"))(FactoryConfig)
+  test("invalid SupplierConfig.inactivityTimeout fails conversion to FiniteDuration"){
+    assertFiniteDurationFailure(supplierConfig(inactivityTimeout = "BOOM"))(FactoryConfig)
   }
 
   test("invalid ConsumerConfig.assemblyTime fails conversion to FiniteDuration"){
@@ -44,10 +44,9 @@ class AcmeConfigTest extends AnyFunSuite {
 }
 
 object AcmeConfigTest {
-  def factoryConfig(queueSize: String = "10", inactivityTimeout: String = "10"): Config = ConfigFactory.parseMap(
+  def factoryConfig(queueSize: String = "10"): Config = ConfigFactory.parseMap(
     Map(
-      "queueSize" -> queueSize,
-      "inactivityTimeout" -> inactivityTimeout
+      "queueSize" -> queueSize
     ).asJava)
 
   def consumerConfig(assemblyTime: String): Config = ConfigFactory.parseMap(
@@ -55,8 +54,9 @@ object AcmeConfigTest {
       "assemblyTime" -> assemblyTime
     ).asJava)
 
-  def supplierConfig(buildTime: String): Config = ConfigFactory.parseMap(
+  def supplierConfig(buildTime: String = "10", inactivityTimeout: String = "10"): Config = ConfigFactory.parseMap(
     Map(
-      "buildTime" -> buildTime
+      "buildTime" -> buildTime,
+      "inactivityTimeout" -> inactivityTimeout
     ).asJava)
 }

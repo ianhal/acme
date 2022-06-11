@@ -30,17 +30,16 @@ object AcmeConfig{
     AcmeConfig(
       factoryConfig = FactoryConfig.fromConfig(config.getConfig("factory")),
       consumerConfig = ConsumerConfig.fromConfig(config.getConfig("consumer")),
-      supplierConfig = SupplierConfig.fromConfig(config.getConfig("producer"))
+      supplierConfig = SupplierConfig.fromConfig(config.getConfig("supplier"))
     )
   }
 
-  case class FactoryConfig(queueSize: Int, inactivityTimeout: FiniteDuration)
+  case class FactoryConfig(queueSize: Int)
   object FactoryConfig extends SubConfig[FactoryConfig] {
 
     override def fromConfig(config: Config): FactoryConfig = {
       FactoryConfig(
-        queueSize = config.getInt("queueSize"),
-        inactivityTimeout = config.getInt("inactivityTimeout").toFiniteDuration
+        queueSize = config.getInt("queueSize")
       )
     }
   }
@@ -56,13 +55,14 @@ object AcmeConfig{
     }
   }
 
-  case class SupplierConfig(buildTime: FiniteDuration)
+  case class SupplierConfig(buildTime: FiniteDuration, inactivityTimeout: FiniteDuration)
 
   object SupplierConfig extends SubConfig[SupplierConfig]{
 
     override def fromConfig(config: Config): SupplierConfig = {
       SupplierConfig(
         buildTime = config.getInt("buildTime").toFiniteDuration,
+        inactivityTimeout = config.getInt("inactivityTimeout").toFiniteDuration
       )
     }
   }

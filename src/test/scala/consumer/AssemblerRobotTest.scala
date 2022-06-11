@@ -72,10 +72,10 @@ class AssemblerRobotTest extends AnyFunSuite {
     assert(currentInventory.size == 2, "inventory should still be still present")
   }
 
-  private def createRobotAndReturnState(queueInput: IO[(Component, Component, Component)], robotFunc: (PeekableDequeue[IO, Component], Semaphore[IO], ConsumerConfig)=> IO[AssemblerRobot]): (Int, List[Component]) = {
+  private def createRobotAndReturnState(queueInput: IO[(Component, Component, Component)], robotFunc: (PeekableDequeue[IO, Component], Semaphore[IO], ConsumerConfig)=> IO[AssemblerRobot]): (Int, Map[Component, Int]) = {
 
     val (buildCount, currentInventory) = (for {
-      currentInventoryRef <- Ref[IO].of[List[Component]](List.empty[Component])
+      currentInventoryRef <- Ref[IO].of[Map[Component, Int]](Map.empty[Component, Int])
       buildCountRef <- Ref[IO].of[Int](0)
       lastTimeRef <- Ref[IO].of[Calendar](Calendar.getInstance())
       queue <- PeekableDequeue[IO].create[Component](factoryConfig, lastTimeRef)

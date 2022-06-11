@@ -20,18 +20,18 @@ abstract class AssemblerRobot(conveyorSemaphore: Semaphore[IO], dequeue: Peekabl
   protected val product: String
 
   def startIO(): IO[Unit] = for {
-    currentInventoryRef <- Ref[IO].of[List[Component]](List.empty[Component])
+    currentInventoryRef <- Ref[IO].of[Map[Component, Int]](Map.empty[Component, Int])
     buildCountRef <- Ref[IO].of[Int](0)
     _ <- infoIO(s"starting AssemblerRobot[${getClass.getSimpleName}]")
     _ <- fetchAndAttemptBuildIO(currentInventoryRef, buildCountRef).notFasterThan(consumerConfig.retrievalTimeMS).loopForever.start.map(_.cancel)
   } yield ()
 
-  def fetchAndAttemptBuildIO(currentInventoryRef: Ref[IO, List[Component]], buildCountRef: Ref[IO, Int]): IO[Unit] = for {
+  def fetchAndAttemptBuildIO(currentInventoryRef: Ref[IO, Map[Component, Int]], buildCountRef: Ref[IO, Int]): IO[Unit] = for {
     _ <- debugIO("acquiring semaphore") *> conveyorSemaphore.acquire *> debugIO("acquired semaphore")
     maybePeeked <- dequeue.tryPeek
     preInventory <- currentInventoryRef.get
     _ <- Monad[IO].whenA(maybePeeked.nonEmpty && needsComponent(maybePeeked.get, preInventory)){
-      dequeue.take.flatMap(d => currentInventoryRef.update(l => l :+ d)) *> infoIO(s"${getClass.getSimpleName} took from conveyor belt: ${maybePeeked.get}")
+      dequeue.take.flatMap(updateInventory(currentInventoryRef)) *> infoIO(s"${getClass.getSimpleName} took from conveyor belt: ${maybePeeked.get}")
     }
     _ <- debugIO("releasing semaphore") *> conveyorSemaphore.release *> debugIO("released semaphore")
     postInventory <- currentInventoryRef.get
@@ -41,18 +41,28 @@ abstract class AssemblerRobot(conveyorSemaphore: Semaphore[IO], dequeue: Peekabl
     }
   } yield ()
 
-  def hasAllPrerequisites(currentInventory: List[Component]): Boolean = {
-    val componentCounts = currentInventory.groupBy(identity).view.mapValues(_.size).toMap
-    componentCounts.equals(prerequisites)
+  private def updateInventory(currentInventoryRef: Ref[IO, Map[Component, Int]])(component: Component): IO[Unit] =
+    currentInventoryRef.update(ci => {
+      ci.updatedWith(component)(mc => mc.fold[Option[Int]](Some(1))(c => Some(c + 1)))
+    })
+
+  def hasAllPrerequisites(currentInventory: Map[Component, Int]): Boolean = {
+    currentInventory.equals(prerequisites)
   }
 
-  def needsComponent(component: Component, currentInventory: List[Component]): Boolean = {
-    val count = currentInventory.count(_ == component)
-    prerequisites.get(component).exists(pCount => count < pCount)
+  def needsComponent(component: Component, currentInventory: Map[Component, Int]): Boolean = {
+    (prerequisites.get(component), currentInventory.get(component)) match {
+      case (None, _) => false
+      case (Some(_), None) => true
+      case (Some(pCount), Some(iCount)) if pCount > iCount => true
+      case _ => false
+    }
+
+
   }
 
-  def buildIO(currentInventoryRef: Ref[IO, List[Component]], buildCountRef: Ref[IO, Int]): IO[Unit] = for {
-      _ <- currentInventoryRef.update(_ => List.empty[Component])
+  def buildIO(currentInventoryRef: Ref[IO, Map[Component, Int]], buildCountRef: Ref[IO, Int]): IO[Unit] = for {
+      _ <- currentInventoryRef.update(_ => Map.empty[Component, Int])
       previousCount <- buildCountRef.get
       _ <- IO(previousCount + 1).flatMap { newCount =>
           infoIO(s"building...building...building...$product created. Build count: $newCount ") *> buildCountRef.update(_ => newCount)
