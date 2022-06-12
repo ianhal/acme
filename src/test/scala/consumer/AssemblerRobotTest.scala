@@ -1,7 +1,6 @@
 package com.acme
 package consumer
 
-import config.AcmeConfig
 import config.AcmeConfig.ConsumerConfig
 import domain.Component
 import factory.PeekableDequeue
@@ -9,16 +8,10 @@ import factory.PeekableDequeue
 import cats.effect.std.Semaphore
 import cats.effect.unsafe.implicits.global
 import cats.effect.{IO, Ref}
-import com.typesafe.config.ConfigFactory
-import org.scalatest.funsuite.AnyFunSuite
 
 import java.util.Calendar
 
-class AssemblerRobotTest extends AnyFunSuite {
-
-  val acmeConfig: AcmeConfig = AcmeConfig.fromConfig(ConfigFactory.load())
-
-  import acmeConfig._
+class AssemblerRobotTest extends FactoryTestSupport {
 
   test("WetRobot collects 2 x Mops, 1 Mainunit, builds, and then has a buildCount of 1"){
     val queueInput = IO((

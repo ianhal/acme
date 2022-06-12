@@ -1,38 +1,32 @@
 package com.acme
 package factory
 
-import config.AcmeConfig
-
 import cats.effect.unsafe.implicits.global
 import cats.effect.{IO, Ref}
-import com.typesafe.config.ConfigFactory
-import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.time.SpanSugar.convertIntToGrainOfTime
 
 import java.util.Calendar
 
-class PeekableDequeueTest extends AnyFunSuite{
-
-  val config = AcmeConfig.fromConfig(ConfigFactory.load()).factoryConfig
+class PeekableDequeueTest extends FactoryTestSupport {
 
   test("taking from front of queue"){
 
-    val (peek1, peek2) = (for {
+    val take1 = (for {
       lastTimeRef <- Ref[IO].of[Calendar](Calendar.getInstance())
-      queue <- PeekableDequeue[IO].create[Int](config, lastTimeRef)
+      queue <- PeekableDequeue[IO].create[Int](factoryConfig, lastTimeRef)
       _ <- queue.put(2)
       _ <- queue.put(1)
-      p1 <- queue.take
-      p2 <- queue.take
-    } yield (p1, p2)).unsafeRunSync
+      t1 <- queue.take
+      _ <- queue.take
+    } yield t1).unsafeRunSync
 
-    assert(peek1 == 2, "should take the Front of queue")
+    assert(take1 == 2, "should take the Front of queue")
   }
 
   test("peeking multiple times gives same value"){
     val (peek1, peek2) = (for {
       lastTimeRef <- Ref[IO].of[Calendar](Calendar.getInstance())
-      queue <- PeekableDequeue[IO].create[Int](config, lastTimeRef)
+      queue <- PeekableDequeue[IO].create[Int](factoryConfig, lastTimeRef)
       _ <- queue.put(2)
       _ <- queue.put(1)
       p1 <- queue.peek
@@ -46,7 +40,7 @@ class PeekableDequeueTest extends AnyFunSuite{
 
     val (firstTakeTime, secondTakeTime) = (for {
       lastTimeRef <- Ref[IO].of[Calendar](Calendar.getInstance())
-      queue <- PeekableDequeue[IO].create[Int](config, lastTimeRef)
+      queue <- PeekableDequeue[IO].create[Int](factoryConfig, lastTimeRef)
       _ <- queue.put(2)
       _ <- queue.put(1)
       _ <- queue.take
