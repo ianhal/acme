@@ -3,6 +3,13 @@ ThisBuild / version := "0.1.0-SNAPSHOT"
 
 ThisBuild / scalaVersion := "2.13.8"
 
+initialize := {
+  val _ = initialize.value // run the previous initialization
+  val required = "11"
+  val current = sys.props("java.specification.version")
+  assert(current == required, s"Unsupported JDK $current. Use version $required instead.")
+}
+
 lazy val commonDockerSetting = Seq(
   dockerBaseImage := "openjdk:11-jre",
   dockerExposedPorts += 8080,
