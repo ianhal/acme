@@ -1,7 +1,12 @@
 
-ThisBuild / version := "0.1.0-SNAPSHOT"
-
+ThisBuild / version := "1.0.0"
 ThisBuild / scalaVersion := "2.13.8"
+
+val typeSafeConfigVersion = "1.4.2"
+val typeSafeScalaLoggingVersion = "3.9.5"
+val catsEffectVersion = "3.3.11"
+val logbackVersion = "1.2.11"
+val scalaTestVersion = "3.2.12"
 
 initialize := {
   val _ = initialize.value // run the previous initialization
@@ -36,28 +41,21 @@ lazy val commonDockerSetting = Seq(
 
 lazy val root = (project in file("."))
   .settings(
-    name := "acme",
-    idePackagePrefix := Some("com.acme"))
+    name := "AcmeFactory",
+    organization := "Acme",
+    idePackagePrefix := Some("com.acme"),
+    Compile / mainClass := Some("com.acme.Main"),
+    Compile / discoveredMainClasses := Seq())
   .settings(
-  Compile / mainClass := Some("com.acme.Main"),
-  Compile / discoveredMainClasses := Seq(),
-  organization := "Acme",
-  name := "AcmeFactory",
-  version := "0.0.1-SNAPSHOT",
-  scalaVersion := "2.13.8",
-  libraryDependencies ++= Seq(
-    "com.typesafe" % "config" % "1.4.2",
-    "ch.qos.logback" % "logback-classic" % "1.2.11",
-    "com.typesafe.scala-logging" %% "scala-logging" % "3.9.4",
+    libraryDependencies ++= Seq(
+    "com.typesafe" % "config" % typeSafeConfigVersion,
+    "com.typesafe.scala-logging" %% "scala-logging" % typeSafeScalaLoggingVersion,
+    "org.typelevel" %% "cats-effect-kernel" % catsEffectVersion,
+    "org.typelevel" %% "cats-effect-std" % catsEffectVersion,
+    "org.typelevel" %% "cats-effect" % catsEffectVersion,
+    "ch.qos.logback" % "logback-classic" % logbackVersion,
 
-    "org.typelevel" %% "cats-effect-kernel" % "3.3.11",
-    "org.typelevel" %% "cats-effect-std" % "3.3.11",
-    "org.typelevel" %% "cats-effect" % "3.3.11",
-
-    "org.scalatest" %% "scalatest" % "3.2.12" % "test",
+    "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
   ))
   .settings(commonDockerSetting)
   .enablePlugins(JavaAppPackaging, UniversalPlugin, DockerPlugin)
-
-
-

@@ -1,9 +1,7 @@
 version: '3'
 services:
   acme:
-    image: acmefactory:dev
+    image: acmefactory:latest
     container_name: acme
-    ports:
-      - "9090:8080"
     command: "-Dlogback.configurationFile=logback.xml"
     #command: "-Dlogback.configurationFile=logback-debug.xml"
