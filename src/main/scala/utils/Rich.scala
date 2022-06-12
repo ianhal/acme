@@ -4,7 +4,7 @@ package utils
 import cats.effect.{IO, Sync}
 
 import java.util.concurrent.TimeUnit
-import scala.concurrent.duration.{FiniteDuration, SECONDS, TimeUnit}
+import scala.concurrent.duration.{FiniteDuration, SECONDS}
 import scala.util.Random
 
 object Rich {

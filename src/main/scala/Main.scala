@@ -21,10 +21,10 @@ object Main extends IOApp with LogSupportIO {
     lastTakeRef <- Ref[IO].of(Calendar.getInstance())
     conveyorSemaphore <- Semaphore[IO](1)
     dequeue <- PeekableDequeue[IO].create[Component](config.factoryConfig, lastTakeRef)
-    supplier <- Supplier.createIO(lastTakeRef, config.supplierConfig)
+    supplier <- Supplier.createIO(lastTakeRef, dequeue, conveyorSemaphore, config.supplierConfig)
     wetRobotBuilder <- AssemblerRobot.createWetRobotIO(dequeue, conveyorSemaphore, config.consumerConfig)
     dryRobotBuilder <- AssemblerRobot.createDryRobotIO(dequeue, conveyorSemaphore, config.consumerConfig)
-    factory <- Factory.factoryIO(conveyorSemaphore, dequeue, supplier, Seq(wetRobotBuilder, dryRobotBuilder), config.factoryConfig)
+    factory <- Factory.factoryIO(supplier, Seq(wetRobotBuilder, dryRobotBuilder), config.factoryConfig)
     _ <- factory.startIO
     _ <- IO.unit.loopForever
   } yield ExitCode.Success
