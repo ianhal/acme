@@ -66,5 +66,12 @@ object Supplier {
   def createIO(lastTakeRef: Ref[IO, Calendar],
                dequeue: PeekableDequeue[IO, Component],
                conveyorSemaphore: Semaphore[IO],
-               supplierConfig: SupplierConfig): IO[Supplier] = IO(Supplier(lastTakeRef, dequeue, conveyorSemaphore, supplierConfig))
+               supplierConfig: SupplierConfig): IO[Supplier] = IO(
+    Supplier(
+      lastTakeRef = lastTakeRef,
+      dequeue = dequeue,
+      conveyorSemaphore = conveyorSemaphore,
+      supplierConfig = supplierConfig
+    )
+  )
 }

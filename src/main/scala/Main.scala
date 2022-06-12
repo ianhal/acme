@@ -20,11 +20,31 @@ object Main extends IOApp with LogSupportIO {
     config <- AcmeConfig.createIO
     lastTakeRef <- Ref[IO].of(Calendar.getInstance())
     conveyorSemaphore <- Semaphore[IO](1)
-    dequeue <- PeekableDequeue[IO].create[Component](config.factoryConfig, lastTakeRef)
-    supplier <- Supplier.createIO(lastTakeRef, dequeue, conveyorSemaphore, config.supplierConfig)
-    wetRobotBuilder <- AssemblerRobot.createWetRobotIO(dequeue, conveyorSemaphore, config.consumerConfig)
-    dryRobotBuilder <- AssemblerRobot.createDryRobotIO(dequeue, conveyorSemaphore, config.consumerConfig)
-    factory <- Factory.factoryIO(supplier, Seq(wetRobotBuilder, dryRobotBuilder), config.factoryConfig)
+    dequeue <- PeekableDequeue[IO].create[Component](
+      lastTakeRef = lastTakeRef,
+      config = config.factoryConfig
+    )
+    supplier <- Supplier.createIO(
+      lastTakeRef = lastTakeRef,
+      dequeue = dequeue,
+      conveyorSemaphore = conveyorSemaphore,
+      supplierConfig = config.supplierConfig
+    )
+    wetRobotBuilder <- AssemblerRobot.createWetRobotIO(
+      dequeue = dequeue,
+      conveyorSemaphore = conveyorSemaphore,
+      consumerConfig = config.consumerConfig
+    )
+    dryRobotBuilder <- AssemblerRobot.createDryRobotIO(
+      dequeue = dequeue,
+      conveyorSemaphore = conveyorSemaphore,
+      consumerConfig = config.consumerConfig
+    )
+    factory <- Factory.factoryIO(
+      supplier = supplier,
+      consumers = Seq(wetRobotBuilder, dryRobotBuilder),
+      factoryConfig = config.factoryConfig
+    )
     _ <- factory.startIO
     _ <- IO.unit.loopForever
   } yield ExitCode.Success

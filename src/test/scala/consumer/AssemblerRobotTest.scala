@@ -71,7 +71,7 @@ class AssemblerRobotTest extends FactoryTestSupport {
       currentInventoryRef <- Ref[IO].of[Map[Component, Int]](Map.empty[Component, Int])
       buildCountRef <- Ref[IO].of[Int](0)
       lastTimeRef <- Ref[IO].of[Calendar](Calendar.getInstance())
-      queue <- PeekableDequeue[IO].create[Component](factoryConfig, lastTimeRef)
+      queue <- PeekableDequeue[IO].create[Component](lastTimeRef, factoryConfig)
       semaphore <- Semaphore[IO](1)
       qInput <- queueInput
       _ <- queue.put(qInput._1)

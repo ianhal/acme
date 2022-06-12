@@ -56,7 +56,6 @@ object AcmeConfig{
   }
 
   case class SupplierConfig(buildTime: FiniteDuration, inactivityTimeout: FiniteDuration)
-
   object SupplierConfig extends SubConfig[SupplierConfig]{
 
     override def fromConfig(config: Config): SupplierConfig = {

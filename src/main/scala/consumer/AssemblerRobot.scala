@@ -12,7 +12,9 @@ import cats.effect.{IO, Ref}
 
 case class Prerequisite(Component: Component, inInventory: Boolean)
 
-abstract class AssemblerRobot(conveyorSemaphore: Semaphore[IO], dequeue: PeekableDequeue[IO, Component], consumerConfig: ConsumerConfig) extends LogSupportIO {
+abstract class AssemblerRobot(conveyorSemaphore: Semaphore[IO],
+                              dequeue: PeekableDequeue[IO, Component],
+                              consumerConfig: ConsumerConfig) extends LogSupportIO {
 
   import utils.Rich._
 
@@ -23,7 +25,10 @@ abstract class AssemblerRobot(conveyorSemaphore: Semaphore[IO], dequeue: Peekabl
     currentInventoryRef <- Ref[IO].of[Map[Component, Int]](Map.empty[Component, Int])
     buildCountRef <- Ref[IO].of[Int](0)
     _ <- infoIO(s"starting")
-    _ <- fetchAndAttemptBuildIO(currentInventoryRef, buildCountRef).notFasterThan(consumerConfig.retrievalTimeMS).loopForever.start.map(_.cancel)
+    _ <- fetchAndAttemptBuildIO(
+      currentInventoryRef = currentInventoryRef,
+      buildCountRef = buildCountRef
+    ).notFasterThan(consumerConfig.retrievalTimeMS).loopForever.start.map(_.cancel)
   } yield ()
 
   def fetchAndAttemptBuildIO(currentInventoryRef: Ref[IO, Map[Component, Int]], buildCountRef: Ref[IO, Int]): IO[Unit] = for {
@@ -57,8 +62,6 @@ abstract class AssemblerRobot(conveyorSemaphore: Semaphore[IO], dequeue: Peekabl
       case (Some(pCount), Some(iCount)) if pCount > iCount => true
       case _ => false
     }
-
-
   }
 
   def buildIO(currentInventoryRef: Ref[IO, Map[Component, Int]], buildCountRef: Ref[IO, Int]): IO[Unit] = for {
@@ -73,11 +76,30 @@ abstract class AssemblerRobot(conveyorSemaphore: Semaphore[IO], dequeue: Peekabl
 
 object AssemblerRobot {
 
-  def createWetRobotIO(dequeue: PeekableDequeue[IO, Component], conveyorSemaphore: Semaphore[IO], consumerConfig: ConsumerConfig): IO[AssemblerRobot] = IO(WetRobot(conveyorSemaphore, dequeue, consumerConfig))
-  def createDryRobotIO(dequeue: PeekableDequeue[IO, Component], conveyorSemaphore: Semaphore[IO], consumerConfig: ConsumerConfig): IO[AssemblerRobot] = IO(DryRobot(conveyorSemaphore, dequeue, consumerConfig))
+  def createWetRobotIO(dequeue: PeekableDequeue[IO, Component],
+                       conveyorSemaphore: Semaphore[IO],
+                       consumerConfig: ConsumerConfig): IO[AssemblerRobot] = IO(
+    WetRobot(
+      conveyorSemaphore = conveyorSemaphore,
+      dequeue = dequeue,
+      consumerConfig = consumerConfig
+    )
+  )
+
+  def createDryRobotIO(dequeue: PeekableDequeue[IO, Component],
+                       conveyorSemaphore: Semaphore[IO],
+                       consumerConfig: ConsumerConfig): IO[AssemblerRobot] = IO(
+    DryRobot(
+      conveyorSemaphore = conveyorSemaphore,
+      dequeue = dequeue,
+      consumerConfig = consumerConfig
+    )
+  )
 }
 
-case class WetRobot(conveyorSemaphore: Semaphore[IO], dequeue: PeekableDequeue[IO, Component], consumerConfig: ConsumerConfig) extends AssemblerRobot(conveyorSemaphore, dequeue, consumerConfig) {
+case class WetRobot(conveyorSemaphore: Semaphore[IO],
+                    dequeue: PeekableDequeue[IO, Component],
+                    consumerConfig: ConsumerConfig) extends AssemblerRobot(conveyorSemaphore, dequeue, consumerConfig) {
 
   override protected val prerequisites: Map[Component, Int] = Map(
     Component.MainUnit -> 1,
@@ -85,7 +107,9 @@ case class WetRobot(conveyorSemaphore: Semaphore[IO], dequeue: PeekableDequeue[I
   )
   override protected val product: String = "Wet-2000"
 }
-case class DryRobot(conveyorSemaphore: Semaphore[IO], dequeue: PeekableDequeue[IO, Component], consumerConfig: ConsumerConfig) extends AssemblerRobot(conveyorSemaphore, dequeue, consumerConfig) {
+case class DryRobot(conveyorSemaphore: Semaphore[IO],
+                    dequeue: PeekableDequeue[IO, Component],
+                    consumerConfig: ConsumerConfig) extends AssemblerRobot(conveyorSemaphore, dequeue, consumerConfig) {
 
   override protected val prerequisites: Map[Component, Int] = Map(
     Component.MainUnit -> 1,

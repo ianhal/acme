@@ -33,7 +33,7 @@ object PeekableDequeue {
 
     private implicit def _F: Concurrent[F] = F
 
-    def create[A](config: FactoryConfig, lastTakeRef: Ref[F, Calendar]): F[PeekableDequeue[F, A]] = Dequeue.bounded[F, A](config.queueSize).map(dequeue => peekableQueue[A](dequeue, lastTakeRef))
+    def create[A](lastTakeRef: Ref[F, Calendar], config: FactoryConfig): F[PeekableDequeue[F, A]] = Dequeue.bounded[F, A](config.queueSize).map(dequeue => peekableQueue[A](dequeue, lastTakeRef))
 
     private def peekableQueue[A](q: cats.effect.std.Dequeue[F, A], lastTakeRef: Ref[F, Calendar]): PeekableDequeue[F, A] =
       new PeekableDequeue[F, A]  {
