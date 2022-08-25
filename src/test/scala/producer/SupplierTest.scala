@@ -16,7 +16,7 @@ class SupplierTest extends FactoryTestSupport {
   test("Supplier creates a component successfully"){
     val component = (for{
       lastTakeRef <- Ref[IO].of(Calendar.getInstance())
-      dequeue <- PeekableDequeue[IO].create[Component](lastTakeRef, factoryConfig)
+      dequeue <- PeekableDequeue.create[Component](lastTakeRef, factoryConfig)
       conveyorSemaphore <- Semaphore[IO](1)
       supplier <- Supplier.createIO(lastTakeRef, dequeue, conveyorSemaphore, supplierConfig)
       component <- supplier.supplyComponentIO
@@ -28,7 +28,7 @@ class SupplierTest extends FactoryTestSupport {
   test("supplier disposes of stale component after 10 seconds"){
     val (takenFromFront, createdComponent2) = (for{
       lastTakeRef <- Ref[IO].of(Calendar.getInstance())
-      dequeue <- PeekableDequeue[IO].create[Component](lastTakeRef, factoryConfig)
+      dequeue <- PeekableDequeue.create[Component](lastTakeRef, factoryConfig)
       conveyorSemaphore <- Semaphore[IO](1)
       supplier <- Supplier.createIO(lastTakeRef, dequeue, conveyorSemaphore, supplierConfig.copy(inactivityTimeout = 1.second))
       createdComponent1 <- supplier.supplyComponentIO

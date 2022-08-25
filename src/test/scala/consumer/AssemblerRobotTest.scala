@@ -65,13 +65,13 @@ class AssemblerRobotTest extends FactoryTestSupport {
     assert(currentInventory.size == 2, "inventory should still be still present")
   }
 
-  private def createRobotAndReturnState(queueInput: IO[(Component, Component, Component)], robotFunc: (PeekableDequeue[IO, Component], Semaphore[IO], ConsumerConfig)=> IO[AssemblerRobot]): (Int, Map[Component, Int]) = {
+  private def createRobotAndReturnState(queueInput: IO[(Component, Component, Component)], robotFunc: (PeekableDequeue[Component], Semaphore[IO], ConsumerConfig)=> IO[AssemblerRobot]): (Int, Map[Component, Int]) = {
 
     val (buildCount, currentInventory) = (for {
       currentInventoryRef <- Ref[IO].of[Map[Component, Int]](Map.empty[Component, Int])
       buildCountRef <- Ref[IO].of[Int](0)
       lastTimeRef <- Ref[IO].of[Calendar](Calendar.getInstance())
-      queue <- PeekableDequeue[IO].create[Component](lastTimeRef, factoryConfig)
+      queue <- PeekableDequeue.create[Component](lastTimeRef, factoryConfig)
       semaphore <- Semaphore[IO](1)
       qInput <- queueInput
       _ <- queue.put(qInput._1)

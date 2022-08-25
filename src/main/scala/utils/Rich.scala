@@ -2,6 +2,7 @@ package com.acme
 package utils
 
 import cats.effect.{IO, Sync}
+import com.typesafe.scalalogging.Logger
 
 import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.{FiniteDuration, SECONDS}
@@ -32,6 +33,11 @@ object Rich {
         a <- io
         _ <- waitingForTimePassed.join
       } yield a
+    }
+
+    def debug(implicit logger: Logger): IO[A] = io.map{a =>
+      logger.info(s"$a")
+      a
     }
   }
 

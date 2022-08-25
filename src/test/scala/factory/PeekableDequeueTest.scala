@@ -13,7 +13,7 @@ class PeekableDequeueTest extends FactoryTestSupport {
 
     val take1 = (for {
       lastTakeRef <- Ref[IO].of[Calendar](Calendar.getInstance())
-      queue <- PeekableDequeue[IO].create[Int](lastTakeRef, factoryConfig)
+      queue <- PeekableDequeue.create[Int](lastTakeRef, factoryConfig)
       _ <- queue.put(2)
       _ <- queue.put(1)
       t1 <- queue.take
@@ -26,7 +26,7 @@ class PeekableDequeueTest extends FactoryTestSupport {
   test("peeking multiple times gives same value"){
     val (peek1, peek2) = (for {
       lastTakeRef <- Ref[IO].of[Calendar](Calendar.getInstance())
-      queue <- PeekableDequeue[IO].create[Int](lastTakeRef, factoryConfig)
+      queue <- PeekableDequeue.create[Int](lastTakeRef, factoryConfig)
       _ <- queue.put(2)
       _ <- queue.put(1)
       p1 <- queue.peek
@@ -40,7 +40,7 @@ class PeekableDequeueTest extends FactoryTestSupport {
 
     val (firstTakeTime, secondTakeTime) = (for {
       lastTakeRef <- Ref[IO].of[Calendar](Calendar.getInstance())
-      queue <- PeekableDequeue[IO].create[Int](lastTakeRef, factoryConfig)
+      queue <- PeekableDequeue.create[Int](lastTakeRef, factoryConfig)
       _ <- queue.put(2)
       _ <- queue.put(1)
       _ <- queue.take

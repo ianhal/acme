@@ -8,7 +8,8 @@ trait LogSupportIO { self =>
   import com.typesafe.scalalogging.{Logger => ScalaLogger}
 
   protected val logger: ScalaLogger = ScalaLogger.apply(getClass)
-  
+  implicit val logger_ : ScalaLogger = logger
+
 
   def debugIO[A](message: => A): IO[Unit] = IO { logger.debug(message.toString) }
   def debugIO(message: => String, throwable: Throwable): IO[Unit] = IO { logger.debug(message, throwable) }

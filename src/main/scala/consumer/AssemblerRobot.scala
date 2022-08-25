@@ -13,7 +13,7 @@ import cats.effect.{IO, Ref}
 case class Prerequisite(Component: Component, inInventory: Boolean)
 
 abstract class AssemblerRobot(conveyorSemaphore: Semaphore[IO],
-                              dequeue: PeekableDequeue[IO, Component],
+                              dequeue: PeekableDequeue[Component],
                               consumerConfig: ConsumerConfig) extends LogSupportIO {
 
   import utils.Rich._
@@ -76,7 +76,7 @@ abstract class AssemblerRobot(conveyorSemaphore: Semaphore[IO],
 
 object AssemblerRobot {
 
-  def createWetRobotIO(dequeue: PeekableDequeue[IO, Component],
+  def createWetRobotIO(dequeue: PeekableDequeue[Component],
                        conveyorSemaphore: Semaphore[IO],
                        consumerConfig: ConsumerConfig): IO[AssemblerRobot] = IO(
     WetRobot(
@@ -86,7 +86,7 @@ object AssemblerRobot {
     )
   )
 
-  def createDryRobotIO(dequeue: PeekableDequeue[IO, Component],
+  def createDryRobotIO(dequeue: PeekableDequeue[Component],
                        conveyorSemaphore: Semaphore[IO],
                        consumerConfig: ConsumerConfig): IO[AssemblerRobot] = IO(
     DryRobot(
@@ -98,7 +98,7 @@ object AssemblerRobot {
 }
 
 case class WetRobot(conveyorSemaphore: Semaphore[IO],
-                    dequeue: PeekableDequeue[IO, Component],
+                    dequeue: PeekableDequeue[Component],
                     consumerConfig: ConsumerConfig) extends AssemblerRobot(conveyorSemaphore, dequeue, consumerConfig) {
 
   override protected val prerequisites: Map[Component, Int] = Map(
@@ -108,7 +108,7 @@ case class WetRobot(conveyorSemaphore: Semaphore[IO],
   override protected val product: String = "Wet-2000"
 }
 case class DryRobot(conveyorSemaphore: Semaphore[IO],
-                    dequeue: PeekableDequeue[IO, Component],
+                    dequeue: PeekableDequeue[Component],
                     consumerConfig: ConsumerConfig) extends AssemblerRobot(conveyorSemaphore, dequeue, consumerConfig) {
 
   override protected val prerequisites: Map[Component, Int] = Map(

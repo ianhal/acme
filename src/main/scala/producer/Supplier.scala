@@ -15,7 +15,7 @@ import java.util.Calendar
 import scala.concurrent.duration.DurationInt
 
 case class Supplier(lastTakeRef: Ref[IO, Calendar],
-                    dequeue: PeekableDequeue[IO, Component],
+                    dequeue: PeekableDequeue[Component],
                     conveyorSemaphore: Semaphore[IO],
                     supplierConfig: SupplierConfig
                    ) extends LogSupportIO {
@@ -64,7 +64,7 @@ object Supplier {
   )
 
   def createIO(lastTakeRef: Ref[IO, Calendar],
-               dequeue: PeekableDequeue[IO, Component],
+               dequeue: PeekableDequeue[Component],
                conveyorSemaphore: Semaphore[IO],
                supplierConfig: SupplierConfig): IO[Supplier] = IO(
     Supplier(

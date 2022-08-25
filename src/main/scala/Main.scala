@@ -20,7 +20,7 @@ object Main extends IOApp with LogSupportIO {
     config <- AcmeConfig.createIO
     lastTakeRef <- Ref[IO].of(Calendar.getInstance())
     conveyorSemaphore <- Semaphore[IO](1)
-    dequeue <- PeekableDequeue[IO].create[Component](
+    dequeue <- PeekableDequeue.create[Component](
       lastTakeRef = lastTakeRef,
       config = config.factoryConfig
     )
