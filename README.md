@@ -12,7 +12,20 @@ Fun and full of gusto :)
 * build image: `sbt docker:publishLocal`
 * start container: `docker-compose acme`
 
-## Notes
+## Requirement Notes
+* create Producer
+  - creates main units, mops, brooms
+  - one component every second (completely pseudo-random)
+* create Consumer (3 seconds to create) (only 2 workers)
+  - Type 1: Dry-2000 (prereqs: 1 main unit, 2 brooms)
+  - Type 2: Wet-2000 (prereqs: 1 main unit, 2 mops)
+* create Factory (queue)
+  - 1 producer
+  - 2 consumers
+  - 10 items Max limit (wait for room)
+  - after 10 seconds of inactivity, dispose of front in queue
+
+## Design Notes
 * **Design Decision**: Use basic cats Dequeue und monolithic instead of splitting into microservices (Time constraints)
 * **Design Decision**: Build a custom Dequeue to be able to peek at front of pipeline
 * **Design Decision**: Use cats effect IO to control sequencing and order of execution of side effects
@@ -25,15 +38,3 @@ Fun and full of gusto :)
 * **Optimization Idea 4**: peek in worker inventory and remove all from conveyor belt until at least 1 needed component
 * **Optimization Idea 5**: instead of disposing components, add to bounded storage queues with auto-scaling of assemblyRobots depending on amounts
 * **Improvement**: Need to improve test coverage and add Integration tests (Time constraints)
-### Requirement Notes
-* create Producer
-  - creates main units, mops, brooms
-  - one component every second (completely pseudo-random)
-* create Consumer (3 seconds to create) (only 2 workers)
-  - Type 1: Dry-2000 (prereqs: 1 main unit, 2 brooms)
-  - Type 2: Wet-2000 (prereqs: 1 main unit, 2 mops)
-* create Factory (queue)
-  - 1 producer
-  - 2 consumers
-  - 10 items Max limit (wait for room)
-  - after 10 seconds of inactivity, dispose of front in queue
